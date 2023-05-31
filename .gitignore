@@ -1,0 +1,8 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/Portfolio.Backend.Csharp/obj
+/.vs
+/Portfolio.Backend.Csharp/bin/Debug/net6.0
+/Portfolio.Backend.Csharp/Migrations
