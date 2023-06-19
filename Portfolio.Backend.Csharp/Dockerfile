@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 FROM mcr.microsoft.com/dotnet/sdk:6.0 as build-env
 # select current directory as working directory
-WORKDIR /app
+WORKDIR /app/Portfolio.Backend.Csharp
 # copy csproj and restore as distinct layers
 COPY *.csproj ./
 RUN dotnet restore
