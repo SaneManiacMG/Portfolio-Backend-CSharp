@@ -40,7 +40,7 @@ namespace Portfolio.Backend.Csharp.Services
                 return null;
             }
 
-            return _jwtAuthenticationManager.Authenticate(foundUser.UserId);
+            return _jwtAuthenticationManager.Authenticate(foundUser.UserId, foundUser.Role);
         }
 
         public async Task<string> RegisterUser(LoginRequest authenticationRequest)

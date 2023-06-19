@@ -1,7 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens;
-using Portfolio.Backend.Csharp.Interfaces;
-using Portfolio.Backend.Csharp.Models.Entities;
-using Portfolio.Backend.Csharp.Models.Requests;
+using Portfolio.Backend.Csharp.Models.Enums;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -11,8 +9,6 @@ namespace Portfolio.Backend.Csharp.Configs
     public class JwtAuthenticationManager
     {
         private readonly string _key;
-        private readonly IUserService _userService;
-        private readonly ILoginService _loginService;
 
         private readonly IDictionary<string, string> users = new Dictionary<string, string>
         {
@@ -25,7 +21,7 @@ namespace Portfolio.Backend.Csharp.Configs
             _key = key;
         }
 
-        public string Authenticate(string userId)
+        public string Authenticate(string userId, Role role)
         {
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
             var tokenKey = Encoding.ASCII.GetBytes(_key);
@@ -35,12 +31,15 @@ namespace Portfolio.Backend.Csharp.Configs
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.UserData, userId),
+                    new Claim(ClaimTypes.Role, role.ToString()),
                 }),
-                Expires = DateTime.UtcNow.AddDays(1),
+                Expires = DateTime.UtcNow.AddDays(30),
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(tokenKey),
                     SecurityAlgorithms.HmacSha256Signature)
             };
+
+        // still need to add issuer and audience
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
 

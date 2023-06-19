@@ -22,8 +22,10 @@ namespace Portfolio.Backend.Csharp.Controllers
 
         [HttpGet]
         [Route("/GetUsers")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllUsers()
         {
+            Console.WriteLine("[controller]/GetUsers has been hit");
             return Ok(await _userService.GetAllUsersResponse());
         }
 
