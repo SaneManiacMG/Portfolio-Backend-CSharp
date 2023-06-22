@@ -34,7 +34,6 @@ namespace Portfolio.Backend.Csharp.Repositories
 
         public async Task<Login> UpdateUserAsync(Login authentication)
         {
-            authentication.DateModified = DateTime.Now;
             _dbContext.Update(authentication);
             await _dbContext.SaveChangesAsync();
 

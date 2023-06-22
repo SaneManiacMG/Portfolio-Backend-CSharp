@@ -33,9 +33,9 @@ namespace Portfolio.Backend.Csharp.Services
             }
 
             string generatedUserId = _sequenceGenerator.UserIdSequenceGenerator();
-            User newUser = new User(generatedUserId, userRequest, DateTime.Now);
+            User newUser = new User(generatedUserId, userRequest, DateTime.Now.ToUniversalTime());
 
-            Login authentication = new Login(generatedUserId, generatedUserId, DateTime.Now);
+            Login authentication = new Login(generatedUserId, generatedUserId, DateTime.Now.ToUniversalTime());
             await _loginRepository.CreateNewUserAsync(authentication);
 
             return _mapper.Map<UserResponse>(await _userRepository.AddUserAsync(newUser));
@@ -98,6 +98,7 @@ namespace Portfolio.Backend.Csharp.Services
                 userExists.LastName = userRequest.LastName;
                 userExists.Email = userRequest.Email;
                 userExists.PhoneNr = userRequest.PhoneNr;
+                userExists.DateModified = DateTime.Now.ToUniversalTime();
 
                 return _mapper.Map<UserResponse>(await _userRepository.UpdateUserAsync(userExists));
             }

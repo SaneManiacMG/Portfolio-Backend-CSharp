@@ -54,9 +54,20 @@ builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 // building db context
-builder.Services.AddDbContext<PortfolioDbContext>(
+/*builder.Services.AddDbContext<PortfolioDbContext>(
     options => options.UseSqlServer(
-        builder.Configuration.GetConnectionString("PortfolioApiConnectionString")));
+        builder.Configuration.GetConnectionString("PortfolioApiConnectionString")));*/
+
+// build db context using Postgres
+builder.Services.AddDbContext<PortfolioDbContext>(options =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("PortfolioApiConnectionString");
+    options.UseNpgsql(connectionString, npgsqlOptions =>
+    {
+        npgsqlOptions.CommandTimeout(60);
+        npgsqlOptions.EnableRetryOnFailure(3);
+    });
+});
 
 var app = builder.Build();
 

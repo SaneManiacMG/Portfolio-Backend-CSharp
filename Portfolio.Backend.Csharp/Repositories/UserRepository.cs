@@ -53,7 +53,6 @@ namespace Portfolio.Backend.Csharp.Repositories
 
         public async Task<User> UpdateUserAsync(User user)
         {
-            user.DateModified = DateTime.Now;
             _dbContext.Update(user);
             await _dbContext.SaveChangesAsync();
 

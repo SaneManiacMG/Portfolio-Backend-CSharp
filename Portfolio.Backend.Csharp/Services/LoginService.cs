@@ -96,6 +96,7 @@ namespace Portfolio.Backend.Csharp.Services
             }
 
             loginDetails.Password = GenerateSaltAndHash(loginRequest.Password);
+            loginDetails.DateModified = DateTime.Now.ToUniversalTime();
             await _loginRepository.UpdateUserAsync(loginDetails);
             return "Password Updated";
         }
