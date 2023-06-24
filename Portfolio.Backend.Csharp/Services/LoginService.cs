@@ -43,23 +43,30 @@ namespace Portfolio.Backend.Csharp.Services
             return _jwtAuthenticationManager.Authenticate(foundUser.UserId, foundUser.Role);
         }
 
-        public async Task<string> RegisterUser(LoginRequest authenticationRequest)
+        public async Task<string> RegisterUser(LoginRequest loginRequest)
         {
-            User foundUser = await _userService.GetUser(authenticationRequest.UserId, authenticationRequest.UserId);
-            Login loginDetails = await _loginRepository.GetUserByIdAsync(foundUser.UserId);
-
-            bool userFound = DoesUserExist(foundUser, loginDetails);
-
-            if (!userFound)
+            User foundUser = await _userService.GetUser(loginRequest.UserId, loginRequest.UserId);
+            if (foundUser == null)
             {
                 return null;
             }
 
-            loginDetails.Password = GenerateSaltAndHash(authenticationRequest.Password);
+            Login loginDetails = await _loginRepository.GetUserByIdAsync(foundUser.UserId);
+            if (loginDetails == null)
+            {
+                return null;
+            }
+
+            if (loginDetails.AccountStatus == AccountStatus.Active)
+            {
+                return "User already registered";
+            }
+
+            loginDetails.Password = GenerateSaltAndHash(loginRequest.Password);
             loginDetails.AccountStatus = AccountStatus.Active;
 
             await _loginRepository.UpdateUserAsync(loginDetails);
-            return "User register for login account";
+            return "User registered";
         }
 
         private string GenerateSaltAndHash(string password)

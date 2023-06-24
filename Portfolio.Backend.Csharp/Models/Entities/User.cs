@@ -1,6 +1,5 @@
-﻿using Portfolio.Backend.Csharp.Models.User.Requests;
-using Portfolio.Backend.Csharp.Models.Enums;
-using System.ComponentModel.DataAnnotations;
+﻿using Portfolio.Backend.Csharp.Models.Enums;
+using Portfolio.Backend.Csharp.Models.Requests;
 
 namespace Portfolio.Backend.Csharp.Models.Entities
 {

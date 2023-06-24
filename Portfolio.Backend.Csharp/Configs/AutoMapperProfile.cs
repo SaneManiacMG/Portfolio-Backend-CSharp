@@ -2,9 +2,8 @@
 using Portfolio.Backend.Csharp.Models.Entities;
 using Portfolio.Backend.Csharp.Models.Requests;
 using Portfolio.Backend.Csharp.Models.Responses;
-using Portfolio.Backend.Csharp.Models.User.Requests;
 
-namespace Portfolio.Backend.Csharp.Mapper
+namespace Portfolio.Backend.Csharp.Configs
 {
     public class AutoMapperProfile : Profile
     {

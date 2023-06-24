@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Portfolio.Backend.Csharp.Configs;
 using Portfolio.Backend.Csharp.Interfaces;
-using Portfolio.Backend.Csharp.Models.User.Requests;
+using Portfolio.Backend.Csharp.Models.Requests;
 
 namespace Portfolio.Backend.Csharp.Controllers
 {

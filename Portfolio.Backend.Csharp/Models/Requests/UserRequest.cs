@@ -1,4 +1,4 @@
-﻿namespace Portfolio.Backend.Csharp.Models.User.Requests
+﻿namespace Portfolio.Backend.Csharp.Models.Requests
 {
     public class UserRequest
     {

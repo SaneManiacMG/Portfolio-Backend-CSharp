@@ -2,8 +2,8 @@
 using Portfolio.Backend.Csharp.Interfaces;
 using Portfolio.Backend.Csharp.Models.Entities;
 using Portfolio.Backend.Csharp.Models.Enums;
+using Portfolio.Backend.Csharp.Models.Requests;
 using Portfolio.Backend.Csharp.Models.Responses;
-using Portfolio.Backend.Csharp.Models.User.Requests;
 
 namespace Portfolio.Backend.Csharp.Services
 {
@@ -27,7 +27,7 @@ namespace Portfolio.Backend.Csharp.Services
         public async Task<UserResponse> AddUser(UserRequest userRequest)
         {
             var userExists = await GetUser(userRequest.Username, userRequest.Email)!;
-            if(userExists != null)
+            if (userExists != null)
             {
                 return _mapper.Map<UserResponse>(userExists);
             }
@@ -44,7 +44,7 @@ namespace Portfolio.Backend.Csharp.Services
         public async Task<UserResponse> DeleteUser(string userId)
         {
             var userExists = await GetUserById(userId);
-            if(userExists != null)
+            if (userExists != null)
             {
                 return _mapper.Map<UserResponse>(await _userRepository.DeleteUserAsync(userExists));
             }
@@ -91,19 +91,24 @@ namespace Portfolio.Backend.Csharp.Services
         {
             var userExists = await GetUser(updatedUser.Username, updatedUser.Email);
 
-            if (userExists != null)
+            if (userExists == null)
             {
-                userExists.Username = updatedUser.Username;
-                userExists.FirstName = updatedUser.FirstName;
-                userExists.LastName = updatedUser.LastName;
-                userExists.Email = updatedUser.Email;
-                userExists.PhoneNr = updatedUser.PhoneNr;
-                userExists.DateModified = DateTime.Now.ToUniversalTime();
-                userExists.Role = (Role) role;
-
-                return _mapper.Map<UserResponse>(await _userRepository.UpdateUserAsync(userExists));
+                return null;
             }
-            return null;
+
+            userExists.Username = updatedUser.Username;
+            userExists.FirstName = updatedUser.FirstName;
+            userExists.LastName = updatedUser.LastName;
+            userExists.Email = updatedUser.Email;
+            userExists.PhoneNr = updatedUser.PhoneNr;
+            userExists.DateModified = DateTime.Now.ToUniversalTime();
+
+            if (role != null)
+            {
+                userExists.Role = (Role)role;
+            }
+
+            return _mapper.Map<UserResponse>(await _userRepository.UpdateUserAsync(userExists));
         }
 
         public async Task<UserResponse> GetUserResponse(UserRequest userRequest)
@@ -122,7 +127,7 @@ namespace Portfolio.Backend.Csharp.Services
 
             List<UserResponse> MappedUserList = new List<UserResponse>();
 
-            foreach(User user in ListOfUsers)
+            foreach (User user in ListOfUsers)
             {
                 MappedUserList.Add(_mapper.Map<UserResponse>(user));
             }
@@ -134,7 +139,7 @@ namespace Portfolio.Backend.Csharp.Services
         {
             var userExists = await GetUserById(userId);
 
-            if(userExists == null)
+            if (userExists == null)
             {
                 return null;
             }
