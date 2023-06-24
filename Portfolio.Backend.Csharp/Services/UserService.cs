@@ -87,18 +87,19 @@ namespace Portfolio.Backend.Csharp.Services
             return await _userRepository.GetUsersAsync();
         }
 
-        public async Task<UserResponse> UpdateUser(UserRequest userRequest)
+        public async Task<UserResponse> UpdateUser(UserRequest updatedUser, Role? role)
         {
-            User userExists = await GetUser(userRequest.Username, userRequest.Email);
+            var userExists = await GetUser(updatedUser.Username, updatedUser.Email);
 
             if (userExists != null)
             {
-                userExists.Username = userRequest.Username;
-                userExists.FirstName = userRequest.FirstName;
-                userExists.LastName = userRequest.LastName;
-                userExists.Email = userRequest.Email;
-                userExists.PhoneNr = userRequest.PhoneNr;
+                userExists.Username = updatedUser.Username;
+                userExists.FirstName = updatedUser.FirstName;
+                userExists.LastName = updatedUser.LastName;
+                userExists.Email = updatedUser.Email;
+                userExists.PhoneNr = updatedUser.PhoneNr;
                 userExists.DateModified = DateTime.Now.ToUniversalTime();
+                userExists.Role = (Role) role;
 
                 return _mapper.Map<UserResponse>(await _userRepository.UpdateUserAsync(userExists));
             }
@@ -127,6 +128,31 @@ namespace Portfolio.Backend.Csharp.Services
             }
 
             return MappedUserList;
+        }
+
+        public async Task<UserResponse> UpdateUserRole(string userId, string userRole)
+        {
+            var userExists = await GetUserById(userId);
+
+            if(userExists == null)
+            {
+                return null;
+            }
+
+            switch (userRole)
+            {
+                case "Admin":
+                    userExists.Role = Role.Admin;
+                    break;
+                case "Owner":
+                    userExists.Role = Role.Owner;
+                    break;
+                default:
+                    userExists.Role = Role.Visitor;
+                    break;
+            }
+
+            return await UpdateUser(_mapper.Map<UserRequest>(userExists), userExists.Role);
         }
     }
 }

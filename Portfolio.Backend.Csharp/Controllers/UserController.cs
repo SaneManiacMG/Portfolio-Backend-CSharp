@@ -25,12 +25,13 @@ namespace Portfolio.Backend.Csharp.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetAllUsers()
         {
-            Console.WriteLine("[controller]/GetUsers has been hit");
             return Ok(await _userService.GetAllUsersResponse());
         }
 
         [HttpPost]
         [Route("/GetUser")]
+        // TODO: Add Authorize attribute
+        // TODO: Change from HttpPost to HttpGet
         public async Task<IActionResult> GetUser([FromBody] UserRequest userRequest)
         {
             var user = await _userService.GetUserResponse(userRequest);
@@ -58,9 +59,10 @@ namespace Portfolio.Backend.Csharp.Controllers
 
         [HttpPut]
         [Route("/UpdateUser")]
+        // TODO: Add Authorize attribute
         public async Task<IActionResult> UpdateUser([FromBody] UserRequest userRequest)
         {
-            var user = await _userService.UpdateUser(userRequest);
+            var user = await _userService.UpdateUser(userRequest, null);
             if (user == null)
             {
                 return NotFound("User not found");
@@ -71,6 +73,7 @@ namespace Portfolio.Backend.Csharp.Controllers
 
         [HttpDelete]
         [Route("/DeleteUser/{userId}")]
+        // TODO: Add Authorize attribute
         public async Task<IActionResult> DeleteUser([FromRoute] string userId)
         {
             var deletedUser = await _userService.DeleteUser(userId);
@@ -80,6 +83,20 @@ namespace Portfolio.Backend.Csharp.Controllers
             }
 
             return Ok(deletedUser);
+        }
+
+        [HttpPost]
+        [Route("/UpdateRole/{userId}/Role/{role}")]
+        // TODO: Add Authorize attribute
+        public async Task<IActionResult> UpdateAccountType(string userId, string role) { 
+
+            var user = await _userService.UpdateUserRole(userId, role);
+            if (user == null)
+            {
+                return BadRequest("User not found");
+            }
+
+            return Ok(user);
         }
     }
 }

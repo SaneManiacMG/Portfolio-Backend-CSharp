@@ -10,7 +10,7 @@ namespace Portfolio.Backend.Csharp.Mapper
     {
         public AutoMapperProfile()
         {
-            CreateMap<UserRequest, User>();
+            CreateMap<UserRequest, User>().ReverseMap();
             CreateMap<User, UserResponse>();
             CreateMap<LoginRequest, Login>();
         }
