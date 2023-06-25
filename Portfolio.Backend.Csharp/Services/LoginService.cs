@@ -1,9 +1,9 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using Portfolio.Backend.Csharp.Configs;
+﻿using Portfolio.Backend.Csharp.Configs;
 using Portfolio.Backend.Csharp.Interfaces;
 using Portfolio.Backend.Csharp.Models.Entities;
 using Portfolio.Backend.Csharp.Models.Enums;
 using Portfolio.Backend.Csharp.Models.Requests;
+using Portfolio.Backend.Csharp.Models.Responses;
 
 namespace Portfolio.Backend.Csharp.Services
 {
@@ -21,31 +21,32 @@ namespace Portfolio.Backend.Csharp.Services
             _jwtAuthenticationManager = jwtAuthenticationManager;
         }
 
-        public async Task<string> AuthenticateUser(LoginRequest authenticationRequest)
+        public async Task<LoginResponse> AuthenticateUser(LoginRequest authenticationRequest)
         {
-            User foundUser = await _userService.GetUser(authenticationRequest.UserId, authenticationRequest.UserId);
+            User foundUser = await _userService.GetUser(authenticationRequest.UserId);
+            if (foundUser == null)
+            {
+                return null;
+            }
+
             Login loginDetails = await _loginRepository.GetUserByIdAsync(foundUser.UserId);
-
-            bool userFound = DoesUserExist(foundUser, loginDetails);
-
-            if (!userFound)
+            if (loginDetails == null)
             {
                 return null;
             }
 
             bool passwordMatch = BCrypt.Net.BCrypt.Verify(authenticationRequest.Password, loginDetails.Password);
-
             if (!passwordMatch)
             {
                 return null;
             }
 
-            return _jwtAuthenticationManager.Authenticate(foundUser.UserId, foundUser.Role);
+            return new LoginResponse(_jwtAuthenticationManager.Authenticate(foundUser.UserId, foundUser.Role));
         }
 
         public async Task<string> RegisterUser(LoginRequest loginRequest)
         {
-            User foundUser = await _userService.GetUser(loginRequest.UserId, loginRequest.UserId);
+            User foundUser = await _userService.GetUser(loginRequest.UserId);
             if (foundUser == null)
             {
                 return null;
@@ -92,7 +93,7 @@ namespace Portfolio.Backend.Csharp.Services
 
         public async Task<string> UpdatePassword(LoginRequest loginRequest)
         {
-            User foundUser = await _userService.GetUser(loginRequest.UserId, loginRequest.UserId);
+            User foundUser = await _userService.GetUser(loginRequest.UserId);
             Login loginDetails = await _loginRepository.GetUserByIdAsync(foundUser.UserId);
 
             bool userFound = DoesUserExist(foundUser, loginDetails);

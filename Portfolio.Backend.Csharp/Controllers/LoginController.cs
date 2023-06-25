@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Portfolio.Backend.Csharp.Configs;
 using Portfolio.Backend.Csharp.Interfaces;
 using Portfolio.Backend.Csharp.Models.Requests;
+using Portfolio.Backend.Csharp.Models.Responses;
 
 namespace Portfolio.Backend.Csharp.Controllers
 {
@@ -23,7 +24,7 @@ namespace Portfolio.Backend.Csharp.Controllers
         [Route("/Login")]
         public async Task<IActionResult> LoginUser([FromBody] LoginRequest loginRequest)
         {
-            string response = await _loginService.AuthenticateUser(loginRequest);
+            LoginResponse response = await _loginService.AuthenticateUser(loginRequest);
             if (response == null)
             {
                 return NotFound("Invalid Username/Email or password");

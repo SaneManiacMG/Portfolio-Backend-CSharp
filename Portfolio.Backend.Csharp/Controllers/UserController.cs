@@ -28,13 +28,13 @@ namespace Portfolio.Backend.Csharp.Controllers
             return Ok(await _userService.GetAllUsersResponse());
         }
 
-        [HttpPost]
-        [Route("/GetUser")]
+        [HttpGet]
+        [Route("/GetUser/{userId}")]
         // TODO: Add Authorize attribute
         // TODO: Change from HttpPost to HttpGet
-        public async Task<IActionResult> GetUser([FromBody] UserRequest userRequest)
+        public async Task<IActionResult> GetUser([FromRoute] string userId)
         {
-            var user = await _userService.GetUserResponse(userRequest);
+            var user = await _userService.GetUserResponse(userId);
             if (user == null)
             {
                 return BadRequest("User Not Found");

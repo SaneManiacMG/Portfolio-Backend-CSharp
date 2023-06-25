@@ -10,9 +10,9 @@ namespace Portfolio.Backend.Csharp.Interfaces
         public Task<UserResponse> AddUser(UserRequest userRequest);
         public Task<UserResponse> UpdateUser(UserRequest userRequest, Role? role);
         public Task<UserResponse> DeleteUser(string userId);
-        public Task<UserResponse> GetUserResponse(UserRequest userRequest);
+        public Task<UserResponse> GetUserResponse(string userId);
         public Task<List<UserResponse>> GetAllUsersResponse();
-        public Task<User> GetUser(string username, string email);
+        public Task<User> GetUser(string userId);
         public Task<UserResponse> UpdateUserRole(string userId, string userRole);
 
     }

@@ -4,6 +4,7 @@ using Portfolio.Backend.Csharp.Models.Entities;
 using Portfolio.Backend.Csharp.Models.Enums;
 using Portfolio.Backend.Csharp.Models.Requests;
 using Portfolio.Backend.Csharp.Models.Responses;
+using System.Data;
 
 namespace Portfolio.Backend.Csharp.Services
 {
@@ -26,7 +27,7 @@ namespace Portfolio.Backend.Csharp.Services
 
         public async Task<UserResponse> AddUser(UserRequest userRequest)
         {
-            var userExists = await GetUser(userRequest.Username, userRequest.Email)!;
+            var userExists = await GetUser(userRequest.Username)!;
             if (userExists != null)
             {
                 return _mapper.Map<UserResponse>(userExists);
@@ -51,15 +52,15 @@ namespace Portfolio.Backend.Csharp.Services
             return null;
         }
 
-        public async Task<User> GetUser(string username, string email)
+        public async Task<User> GetUser(string userId)
         {
-            var usernameExistsByEmail = await GetUserByEmail(email);
+            var usernameExistsByEmail = await GetUserByEmail(userId);
             if (usernameExistsByEmail != null)
             {
                 return usernameExistsByEmail;
             }
 
-            var userExistsByUsername = await GetUserByUsername(username);
+            var userExistsByUsername = await GetUserByUsername(userId);
             if (userExistsByUsername != null)
             {
                 return userExistsByUsername;
@@ -89,31 +90,54 @@ namespace Portfolio.Backend.Csharp.Services
 
         public async Task<UserResponse> UpdateUser(UserRequest updatedUser, Role? role)
         {
-            var userExists = await GetUser(updatedUser.Username, updatedUser.Email);
+            User updatedDetails = new User();
 
-            if (userExists == null)
+            var userExistsByUsername = await GetUser(updatedUser.Username);
+            if (userExistsByUsername != null)
+            {
+                updatedDetails = userExistsByUsername;
+            }
+
+            var userExistsByEmail = await GetUser(updatedUser.Email);
+            if (userExistsByEmail != null)
+            {
+                updatedDetails = userExistsByEmail;
+            }
+
+            
+            if (userExistsByUsername == null)
             {
                 return null;
             }
 
-            userExists.Username = updatedUser.Username;
-            userExists.FirstName = updatedUser.FirstName;
-            userExists.LastName = updatedUser.LastName;
-            userExists.Email = updatedUser.Email;
-            userExists.PhoneNr = updatedUser.PhoneNr;
-            userExists.DateModified = DateTime.Now.ToUniversalTime();
+            User userExists = userExistsByUsername;
 
-            if (role != null)
-            {
-                userExists.Role = (Role)role;
-            }
+            
 
             return _mapper.Map<UserResponse>(await _userRepository.UpdateUserAsync(userExists));
         }
 
-        public async Task<UserResponse> GetUserResponse(UserRequest userRequest)
+        private User updateObject(User update, Role? role)
         {
-            return _mapper.Map<UserResponse>(await GetUser(userRequest.Username, userRequest.Email));
+            User newModel = new User();
+            newModel.Username = update.Username;
+            newModel.FirstName = update.FirstName;
+            newModel.LastName = update.LastName;
+            newModel.Email = update.Email;
+            newModel.PhoneNr = update.PhoneNr;
+            newModel.DateModified = DateTime.Now.ToUniversalTime();
+
+            if (role != null)
+            {
+                newModel.Role = (Role)role;
+            }
+
+            return newModel;
+        }
+
+        public async Task<UserResponse> GetUserResponse(string userId)
+        {
+            return _mapper.Map<UserResponse>(await GetUser(userId));
         }
 
         public async Task<List<UserResponse>> GetAllUsersResponse()
