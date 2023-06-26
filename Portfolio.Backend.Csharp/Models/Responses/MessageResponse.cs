@@ -1,8 +1,8 @@
 ﻿namespace Portfolio.Backend.Csharp.Models.Responses
 {
-    public class LoginResponse
+    public class MessageResponse
     {
-        public LoginResponse(string response)
+        public MessageResponse(string response)
         {
             Response = response;
         }

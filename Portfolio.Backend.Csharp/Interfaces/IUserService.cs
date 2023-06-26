@@ -7,13 +7,13 @@ namespace Portfolio.Backend.Csharp.Interfaces
 {
     public interface IUserService
     {
-        public Task<UserResponse> AddUser(UserRequest userRequest);
-        public Task<UserResponse> UpdateUser(UserRequest userRequest, Role? role);
-        public Task<UserResponse> DeleteUser(string userId);
-        public Task<UserResponse> GetUserResponse(string userId);
+        public Task<object> AddUser(UserRequest userRequest);
+        public Task<object> UpdateUser(UserRequest userRequest, Role? role);
+        public Task<object> DeleteUser(string userId);
+        public Task<object> GetUserResponse(string userId);
         public Task<List<UserResponse>> GetAllUsersResponse();
         public Task<User> GetUser(string userId);
-        public Task<UserResponse> UpdateUserRole(string userId, string userRole);
+        public Task<object> UpdateUserRole(string userId, string userRole);
 
     }
 }

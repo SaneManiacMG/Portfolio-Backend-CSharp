@@ -4,7 +4,6 @@ using Portfolio.Backend.Csharp.Models.Entities;
 using Portfolio.Backend.Csharp.Models.Enums;
 using Portfolio.Backend.Csharp.Models.Requests;
 using Portfolio.Backend.Csharp.Models.Responses;
-using System.Data;
 
 namespace Portfolio.Backend.Csharp.Services
 {
@@ -16,6 +15,10 @@ namespace Portfolio.Backend.Csharp.Services
         private readonly IMapper _mapper;
         private readonly ILoginRepository _loginRepository;
 
+        const string _userNotFound = "User not found";
+        const string _userAlreadyExists = "User already exists";
+        const string _userDeleted = "User deleted";
+
         public UserService(IUserRepository userRepository, ISequenceGenerator sequenceGenerator, IMapper mapper,
             ILoginRepository loginRepository)
         {
@@ -25,12 +28,13 @@ namespace Portfolio.Backend.Csharp.Services
             _loginRepository = loginRepository;
         }
 
-        public async Task<UserResponse> AddUser(UserRequest userRequest)
+        public async Task<object> AddUser(UserRequest userRequest)
         {
             var userExists = await GetUser(userRequest.Username)!;
             if (userExists != null)
             {
-                return _mapper.Map<UserResponse>(userExists);
+                return "User already exists!";
+                // return _mapper.Map<UserResponse>(userExists);
             }
 
             string generatedUserId = _sequenceGenerator.UserIdSequenceGenerator();
@@ -42,14 +46,14 @@ namespace Portfolio.Backend.Csharp.Services
             return _mapper.Map<UserResponse>(await _userRepository.AddUserAsync(newUser));
         }
 
-        public async Task<UserResponse> DeleteUser(string userId)
+        public async Task<object> DeleteUser(string userId)
         {
             var userExists = await GetUserById(userId);
             if (userExists != null)
             {
                 return _mapper.Map<UserResponse>(await _userRepository.DeleteUserAsync(userExists));
             }
-            return null;
+            return _userNotFound;
         }
 
         public async Task<User> GetUser(string userId)
@@ -88,31 +92,28 @@ namespace Portfolio.Backend.Csharp.Services
             return await _userRepository.GetUsersAsync();
         }
 
-        public async Task<UserResponse> UpdateUser(UserRequest updatedUser, Role? role)
+        public async Task<object> UpdateUser(UserRequest updatedUser, Role? role)
         {
             User updatedDetails = new User();
 
             var userExistsByUsername = await GetUser(updatedUser.Username);
             if (userExistsByUsername != null)
             {
-                updatedDetails = userExistsByUsername;
+                updatedDetails = updateObject(userExistsByUsername, role);
             }
 
             var userExistsByEmail = await GetUser(updatedUser.Email);
             if (userExistsByEmail != null)
             {
-                updatedDetails = userExistsByEmail;
+                updatedDetails = updateObject(userExistsByEmail, role);
             }
 
-            
-            if (userExistsByUsername == null)
+            if (userExistsByUsername == null || userExistsByEmail == null)
             {
-                return null;
+                return _userNotFound;
             }
 
-            User userExists = userExistsByUsername;
-
-            
+            User userExists = updatedDetails;
 
             return _mapper.Map<UserResponse>(await _userRepository.UpdateUserAsync(userExists));
         }
@@ -135,9 +136,16 @@ namespace Portfolio.Backend.Csharp.Services
             return newModel;
         }
 
-        public async Task<UserResponse> GetUserResponse(string userId)
+        public async Task<object> GetUserResponse(string userId)
         {
-            return _mapper.Map<UserResponse>(await GetUser(userId));
+            object response = await GetUser(userId);
+
+            if (response is null)
+            {
+                return _userNotFound;
+            }
+
+            return _mapper.Map<UserResponse>(response);
         }
 
         public async Task<List<UserResponse>> GetAllUsersResponse()
@@ -159,13 +167,13 @@ namespace Portfolio.Backend.Csharp.Services
             return MappedUserList;
         }
 
-        public async Task<UserResponse> UpdateUserRole(string userId, string userRole)
+        public async Task<object> UpdateUserRole(string userId, string userRole)
         {
             var userExists = await GetUserById(userId);
 
             if (userExists == null)
             {
-                return null;
+                return _userNotFound;
             }
 
             switch (userRole)

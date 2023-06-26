@@ -12,38 +12,17 @@ namespace Portfolio.Backend.Csharp.Controllers
     public class LoginController : Controller
     {
         private readonly ILoginService _loginService;
-        private readonly JwtAuthenticationManager _jwtAuthenticationManager;
 
         public LoginController(ILoginService loginService, JwtAuthenticationManager jwtAuthenticationManager)
         {
             _loginService = loginService;
-            _jwtAuthenticationManager = jwtAuthenticationManager;
         }
 
         [HttpPost]
         [Route("/Login")]
         public async Task<IActionResult> LoginUser([FromBody] LoginRequest loginRequest)
         {
-            LoginResponse response = await _loginService.AuthenticateUser(loginRequest);
-            if (response == null)
-            {
-                return NotFound("Invalid Username/Email or password");
-            }
-
-            return Ok(response);
-        }
-
-        [HttpPost]
-        [Route("/Register")]
-        public async Task<IActionResult> RegisterUser([FromBody] LoginRequest loginRequest)
-        {
-            string response = await _loginService.RegisterUser(loginRequest);
-            if (response == null)
-            {
-                return NotFound("Invalid Username/Email or Password");
-            }
-
-            return Ok(response);
+            return ResponseMapping(await _loginService.AuthenticateUser(loginRequest));
         }
 
         [HttpPost]
@@ -51,13 +30,29 @@ namespace Portfolio.Backend.Csharp.Controllers
         [Authorize]
         public async Task<IActionResult> ResetPassword([FromBody] LoginRequest loginRequest)
         {
-            string response = await _loginService.UpdatePassword(loginRequest);
-            if (response == null)
-            {
-                return NotFound("Invalid Username/Email or Password");
-            }
+            return ResponseMapping(await _loginService.ResetPassword(loginRequest));
+        }
 
-            return Ok(response);
+        private IActionResult ResponseMapping(string response)
+        {
+            const string _accountBlocked = "Account is blocked";
+            const string _accountUnverified = "Account is not verified";
+            const string _incorrectUsernameOrPassword = "Incorrect username or password";
+            const string _passwordReset = "Password reset";
+
+            switch (response)
+            {
+                case _accountBlocked:
+                    return Unauthorized(new MessageResponse(_accountBlocked));
+                case _accountUnverified:
+                    return Unauthorized(new MessageResponse(_accountUnverified));
+                case _incorrectUsernameOrPassword:
+                    return Unauthorized(new MessageResponse(_incorrectUsernameOrPassword));
+                case _passwordReset:
+                    return Ok(new MessageResponse(_passwordReset));
+                default:
+                    return Ok(new MessageResponse(response));
+            }
         }
     }
 }

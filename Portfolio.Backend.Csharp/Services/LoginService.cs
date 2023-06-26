@@ -3,7 +3,6 @@ using Portfolio.Backend.Csharp.Interfaces;
 using Portfolio.Backend.Csharp.Models.Entities;
 using Portfolio.Backend.Csharp.Models.Enums;
 using Portfolio.Backend.Csharp.Models.Requests;
-using Portfolio.Backend.Csharp.Models.Responses;
 
 namespace Portfolio.Backend.Csharp.Services
 {
@@ -21,92 +20,69 @@ namespace Portfolio.Backend.Csharp.Services
             _jwtAuthenticationManager = jwtAuthenticationManager;
         }
 
-        public async Task<LoginResponse> AuthenticateUser(LoginRequest authenticationRequest)
+        const string _accountBlocked = "Account is blocked";
+        const string _accountUnverified = "Account is not verified";
+        const string _incorrectUsernameOrPassword = "Incorrect username or password";
+        const string _passwordReset = "Password reset";
+
+        public async Task<string> AuthenticateUser(LoginRequest authenticationRequest)
         {
             User foundUser = await _userService.GetUser(authenticationRequest.UserId);
             if (foundUser == null)
             {
-                return null;
+                return _incorrectUsernameOrPassword;
             }
 
             Login loginDetails = await _loginRepository.GetUserByIdAsync(foundUser.UserId);
             if (loginDetails == null)
             {
-                return null;
+                return _incorrectUsernameOrPassword;
+            }
+
+            if (loginDetails.AccountStatus == AccountStatus.Unverified)
+            {
+                return _accountUnverified;
             }
 
             bool passwordMatch = BCrypt.Net.BCrypt.Verify(authenticationRequest.Password, loginDetails.Password);
             if (!passwordMatch)
             {
-                return null;
+                return _incorrectUsernameOrPassword;
             }
 
-            return new LoginResponse(_jwtAuthenticationManager.Authenticate(foundUser.UserId, foundUser.Role));
+            return _jwtAuthenticationManager.Authenticate(foundUser.UserId, foundUser.Role);
         }
 
-        public async Task<string> RegisterUser(LoginRequest loginRequest)
+        public async Task<string> ResetPassword(LoginRequest loginRequest)
         {
             User foundUser = await _userService.GetUser(loginRequest.UserId);
             if (foundUser == null)
             {
-                return null;
+                return _incorrectUsernameOrPassword;
             }
 
             Login loginDetails = await _loginRepository.GetUserByIdAsync(foundUser.UserId);
             if (loginDetails == null)
             {
-                return null;
+                return _incorrectUsernameOrPassword;
             }
 
-            if (loginDetails.AccountStatus == AccountStatus.Active)
+            if (loginDetails.AccountStatus == AccountStatus.Blocked)
             {
-                return "User already registered";
+                return _accountBlocked;
             }
 
             loginDetails.Password = GenerateSaltAndHash(loginRequest.Password);
             loginDetails.AccountStatus = AccountStatus.Active;
 
             await _loginRepository.UpdateUserAsync(loginDetails);
-            return "User registered";
+            return _passwordReset;
         }
 
         private string GenerateSaltAndHash(string password)
         {
             string salt = BCrypt.Net.BCrypt.GenerateSalt();
             return BCrypt.Net.BCrypt.HashPassword(password, salt);
-        }
-
-        private bool DoesUserExist(User user, Login authentication)
-        {
-            if (user == null)
-            {
-                return false;
-            }
-
-            if (authentication == null)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        public async Task<string> UpdatePassword(LoginRequest loginRequest)
-        {
-            User foundUser = await _userService.GetUser(loginRequest.UserId);
-            Login loginDetails = await _loginRepository.GetUserByIdAsync(foundUser.UserId);
-
-            bool userFound = DoesUserExist(foundUser, loginDetails);
-
-            if (!userFound)
-            {
-                return null;
-            }
-
-            loginDetails.Password = GenerateSaltAndHash(loginRequest.Password);
-            loginDetails.DateModified = DateTime.Now.ToUniversalTime();
-            await _loginRepository.UpdateUserAsync(loginDetails);
-            return "Password Updated";
         }
     }
 }

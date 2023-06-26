@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Portfolio.Backend.Csharp.Configs;
 using Portfolio.Backend.Csharp.Interfaces;
 using Portfolio.Backend.Csharp.Models.Requests;
+using Portfolio.Backend.Csharp.Models.Responses;
 
 namespace Portfolio.Backend.Csharp.Controllers
 {
@@ -12,12 +13,10 @@ namespace Portfolio.Backend.Csharp.Controllers
     public class UserController : Controller
     {
         private readonly IUserService _userService;
-        private readonly JwtAuthenticationManager _jwtAuthenticationManager;
 
         public UserController(IUserService userService, JwtAuthenticationManager jwtAuthenticationManager)
         {
             _userService = userService;
-            _jwtAuthenticationManager = jwtAuthenticationManager;
         }
 
         [HttpGet]
@@ -34,13 +33,7 @@ namespace Portfolio.Backend.Csharp.Controllers
         // TODO: Change from HttpPost to HttpGet
         public async Task<IActionResult> GetUser([FromRoute] string userId)
         {
-            var user = await _userService.GetUserResponse(userId);
-            if (user == null)
-            {
-                return BadRequest("User Not Found");
-            }
-
-            return Ok(user);
+            return ResponseMapping(await _userService.GetUserResponse(userId));
         }
 
         [HttpPost]
@@ -48,13 +41,7 @@ namespace Portfolio.Backend.Csharp.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> AddUser([FromBody] UserRequest userRequest)
         {
-            var newUser = await _userService.AddUser(userRequest);
-            if (newUser == null)
-            {
-                return BadRequest("User Already Exists");
-            }
-
-            return Ok(newUser);
+            return ResponseMapping(await _userService.AddUser(userRequest));
         }
 
         [HttpPut]
@@ -62,13 +49,7 @@ namespace Portfolio.Backend.Csharp.Controllers
         // TODO: Add Authorize attribute
         public async Task<IActionResult> UpdateUser([FromBody] UserRequest userRequest)
         {
-            var user = await _userService.UpdateUser(userRequest, null);
-            if (user == null)
-            {
-                return NotFound("User not found");
-            }
-
-            return Ok(user);
+            return ResponseMapping(await _userService.UpdateUser(userRequest, null));
         }
 
         [HttpDelete]
@@ -76,27 +57,42 @@ namespace Portfolio.Backend.Csharp.Controllers
         // TODO: Add Authorize attribute
         public async Task<IActionResult> DeleteUser([FromRoute] string userId)
         {
-            var deletedUser = await _userService.DeleteUser(userId);
-            if (deletedUser == null)
-            {
-                return BadRequest("User not found");
-            }
-
-            return Ok(deletedUser);
+            return ResponseMapping(await _userService.DeleteUser(userId));
         }
 
         [HttpPost]
         [Route("/UpdateRole/{userId}/Role/{role}")]
         // TODO: Add Authorize attribute
-        public async Task<IActionResult> UpdateAccountType(string userId, string role) { 
+        public async Task<IActionResult> UpdateAccountType(string userId, string role) 
+        {
+            return ResponseMapping(await _userService.UpdateUserRole(userId, role));
+        }
 
-            var user = await _userService.UpdateUserRole(userId, role);
-            if (user == null)
+        private IActionResult ResponseMapping(object response)
+        {            
+            
+            if (response is UserResponse)
             {
-                return BadRequest("User not found");
+                return Ok((UserResponse) response);
             }
 
-            return Ok(user);
+            const string _userNotFound = "User not found";
+            const string _userAlreadyExists = "User already exists";
+            const string _userDeleted = "User deleted";
+            const string _internalServerError = "Internal server error";
+
+            switch (response)
+            {
+                case _userNotFound:
+                    return NotFound(new MessageResponse(_userNotFound));
+                case _userAlreadyExists:
+                    return BadRequest(new MessageResponse(_userAlreadyExists));
+                case _userDeleted:
+                    return Ok(new MessageResponse(_userDeleted));
+                default:
+                    // return internal server error
+                    return StatusCode(500, new MessageResponse(_internalServerError));
+            }
         }
     }
 }
