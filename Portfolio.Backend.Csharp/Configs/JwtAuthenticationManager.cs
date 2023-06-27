@@ -15,7 +15,7 @@ namespace Portfolio.Backend.Csharp.Configs
             _key = key;
         }
 
-        public string Authenticate(string userId, Role role)
+        public string GenerateToken(string userId, Role role)
         {
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
             var tokenKey = Encoding.ASCII.GetBytes(_key);
@@ -30,14 +30,15 @@ namespace Portfolio.Backend.Csharp.Configs
                 Expires = DateTime.UtcNow.AddDays(1),
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(tokenKey),
-                    SecurityAlgorithms.HmacSha256Signature)
+                    SecurityAlgorithms.HmacSha256Signature),
+                Issuer = "SaneManiacWorks",
+                Audience = "PortfolioFrontend"
             };
 
-            // still need to add issuer and audience
-
             var token = tokenHandler.CreateToken(tokenDescriptor);
+            var tokenString = tokenHandler.WriteToken(token);
 
-            return tokenHandler.WriteToken(token);
+            return "Bearer " + tokenString;
         }
     }
 }

@@ -30,6 +30,10 @@ builder.Services.AddSwaggerGen();
 
 // jwt authentication
 var key = "SaneManiacWorksSecurityOchoMuerte90";
+var tokenKey = Encoding.ASCII.GetBytes(key);
+
+builder.Services.AddScoped<CustomJwtBearerEvents>();
+
 builder.Services.AddAuthentication(x =>
 {
     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -41,11 +45,16 @@ builder.Services.AddAuthentication(x =>
     x.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
-        ValidateIssuer = false,
-        ValidateAudience = false
+        IssuerSigningKey = new SymmetricSecurityKey(tokenKey),
+        ValidateIssuer = true,
+        ValidIssuer = "SaneManiacWorks",
+        ValidateAudience = true,
+        ValidAudience = "PortfolioFrontend",
     };
+
+    x.EventsType = typeof(CustomJwtBearerEvents);
 });
+
 builder.Services.AddSingleton<JwtAuthenticationManager>(new JwtAuthenticationManager(key));
 
 // dependency injection here

@@ -50,7 +50,7 @@ namespace Portfolio.Backend.Csharp.Services
                 return _incorrectUsernameOrPassword;
             }
 
-            return _jwtAuthenticationManager.Authenticate(foundUser.UserId, foundUser.Role);
+            return _jwtAuthenticationManager.GenerateToken(foundUser.UserId, foundUser.Role);
         }
 
         public async Task<string> ResetPassword(LoginRequest loginRequest)
