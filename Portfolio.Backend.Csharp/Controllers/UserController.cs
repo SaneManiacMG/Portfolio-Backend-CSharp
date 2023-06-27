@@ -63,17 +63,17 @@ namespace Portfolio.Backend.Csharp.Controllers
         [HttpPost]
         [Route("/UpdateRole/{userId}/Role/{role}")]
         // TODO: Add Authorize attribute
-        public async Task<IActionResult> UpdateAccountType(string userId, string role) 
+        public async Task<IActionResult> UpdateAccountType(string userId, string role)
         {
             return ResponseMapping(await _userService.UpdateUserRole(userId, role));
         }
 
         private IActionResult ResponseMapping(object response)
-        {            
-            
+        {
+
             if (response is UserResponse)
             {
-                return Ok((UserResponse) response);
+                return Ok(response);
             }
 
             const string _userNotFound = "User not found";

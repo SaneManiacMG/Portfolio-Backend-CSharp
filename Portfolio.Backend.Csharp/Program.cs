@@ -1,10 +1,10 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Portfolio.Backend.Csharp.Configs;
 using Portfolio.Backend.Csharp.Interfaces;
-using Portfolio.Backend.Csharp.Services;
 using Portfolio.Backend.Csharp.Repositories;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+using Portfolio.Backend.Csharp.Services;
 using System.Text;
 using System.Text.Json.Serialization;
 

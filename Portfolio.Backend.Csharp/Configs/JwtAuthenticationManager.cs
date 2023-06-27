@@ -10,12 +10,6 @@ namespace Portfolio.Backend.Csharp.Configs
     {
         private readonly string _key;
 
-        private readonly IDictionary<string, string> users = new Dictionary<string, string>
-        {
-            { "test1", "password1" },
-            { "test2", "password2" }
-        };
-
         public JwtAuthenticationManager(string key)
         {
             _key = key;
@@ -33,13 +27,13 @@ namespace Portfolio.Backend.Csharp.Configs
                     new Claim(ClaimTypes.UserData, userId),
                     new Claim(ClaimTypes.Role, role.ToString()),
                 }),
-                Expires = DateTime.UtcNow.AddDays(30),
+                Expires = DateTime.UtcNow.AddDays(1),
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(tokenKey),
                     SecurityAlgorithms.HmacSha256Signature)
             };
 
-        // still need to add issuer and audience
+            // still need to add issuer and audience
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
 

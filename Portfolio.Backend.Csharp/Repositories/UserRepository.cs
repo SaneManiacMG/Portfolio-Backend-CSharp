@@ -60,4 +60,3 @@ namespace Portfolio.Backend.Csharp.Repositories
         }
     }
 }
-    

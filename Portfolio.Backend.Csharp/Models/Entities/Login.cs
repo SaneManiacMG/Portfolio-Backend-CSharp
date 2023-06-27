@@ -1,5 +1,4 @@
 ﻿using Portfolio.Backend.Csharp.Models.Enums;
-using System.ComponentModel.DataAnnotations;
 
 namespace Portfolio.Backend.Csharp.Models.Entities
 {

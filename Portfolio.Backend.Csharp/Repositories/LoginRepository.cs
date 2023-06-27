@@ -8,8 +8,9 @@ namespace Portfolio.Backend.Csharp.Repositories
     public class LoginRepository : ILoginRepository
     {
         private readonly PortfolioDbContext _dbContext;
-        public LoginRepository(PortfolioDbContext portfolioDbContext) {
-            _dbContext = portfolioDbContext;        
+        public LoginRepository(PortfolioDbContext portfolioDbContext)
+        {
+            _dbContext = portfolioDbContext;
         }
 
         public async Task<Login> CreateNewUserAsync(Login authentication)

@@ -99,34 +99,32 @@ namespace Portfolio.Backend.Csharp.Services
             var userExistsByUsername = await GetUser(updatedUser.Username);
             if (userExistsByUsername != null)
             {
-                updatedDetails = updateObject(userExistsByUsername, role);
+                updatedDetails = updateObject(userExistsByUsername, updatedUser, role);
+                return _mapper.Map<UserResponse>(await _userRepository.UpdateUserAsync(updatedDetails));
             }
 
             var userExistsByEmail = await GetUser(updatedUser.Email);
             if (userExistsByEmail != null)
             {
-                updatedDetails = updateObject(userExistsByEmail, role);
+                updatedDetails = updateObject(userExistsByEmail, updatedUser, role);
+                return _mapper.Map<UserResponse>(await _userRepository.UpdateUserAsync(updatedDetails));
             }
 
-            if (userExistsByUsername == null || userExistsByEmail == null)
-            {
-                return _userNotFound;
-            }
+            return _userNotFound;
 
-            User userExists = updatedDetails;
-
-            return _mapper.Map<UserResponse>(await _userRepository.UpdateUserAsync(userExists));
         }
 
-        private User updateObject(User update, Role? role)
+        private User updateObject(User existingData, UserRequest newData, Role? role)
         {
-            User newModel = new User();
-            newModel.Username = update.Username;
-            newModel.FirstName = update.FirstName;
-            newModel.LastName = update.LastName;
-            newModel.Email = update.Email;
-            newModel.PhoneNr = update.PhoneNr;
+            //set values of newData to existingData
+            User newModel = existingData;
+            newModel.Username = newData.Username;
+            newModel.Email = newData.Email;
+            newModel.FirstName = newData.FirstName;
+            newModel.LastName = newData.LastName;
+            newModel.PhoneNr = newData.PhoneNr;
             newModel.DateModified = DateTime.Now.ToUniversalTime();
+
 
             if (role != null)
             {
