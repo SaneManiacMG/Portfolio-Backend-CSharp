@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Portfolio.Backend.Csharp.Configs;
@@ -19,6 +20,7 @@ builder.Services.AddCors(options => options.AddPolicy(name: "PortfolioFrontend",
     }));
 
 // Add services to the container.
+builder.Services.AddSingleton<IAuthorizationHandler, RoleRequirementHandler>();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -32,7 +34,7 @@ builder.Services.AddSwaggerGen();
 var key = "SaneManiacWorksSecurityOchoMuerte90";
 var tokenKey = Encoding.ASCII.GetBytes(key);
 
-builder.Services.AddScoped<CustomJwtBearerEvents>();
+builder.Services.AddSingleton<CustomJwtBearerEvents>();
 
 builder.Services.AddAuthentication(x =>
 {
@@ -55,7 +57,8 @@ builder.Services.AddAuthentication(x =>
     x.EventsType = typeof(CustomJwtBearerEvents);
 });
 
-builder.Services.AddSingleton<JwtAuthenticationManager>(new JwtAuthenticationManager(key));
+
+builder.Services.AddSingleton<JwtAuthenticationManager>(new JwtAuthenticationManager(tokenKey));
 
 // dependency injection here
 builder.Services.AddScoped<IUserRepository, UserRepository>();

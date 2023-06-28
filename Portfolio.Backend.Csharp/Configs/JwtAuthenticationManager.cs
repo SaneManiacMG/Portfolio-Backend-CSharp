@@ -8,9 +8,9 @@ namespace Portfolio.Backend.Csharp.Configs
 {
     public class JwtAuthenticationManager
     {
-        private readonly string _key;
+        private readonly byte[] _key;
 
-        public JwtAuthenticationManager(string key)
+        public JwtAuthenticationManager(byte[] key)
         {
             _key = key;
         }
@@ -18,7 +18,7 @@ namespace Portfolio.Backend.Csharp.Configs
         public string GenerateToken(string userId, Role role)
         {
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
-            var tokenKey = Encoding.ASCII.GetBytes(_key);
+            //var tokenKey = Encoding.ASCII.GetBytes(_key);
 
             SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -29,7 +29,7 @@ namespace Portfolio.Backend.Csharp.Configs
                 }),
                 Expires = DateTime.UtcNow.AddDays(1),
                 SigningCredentials = new SigningCredentials(
-                    new SymmetricSecurityKey(tokenKey),
+                    new SymmetricSecurityKey(_key),
                     SecurityAlgorithms.HmacSha256Signature),
                 Issuer = "SaneManiacWorks",
                 Audience = "PortfolioFrontend"
@@ -38,7 +38,7 @@ namespace Portfolio.Backend.Csharp.Configs
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
 
-            return "Bearer " + tokenString;
+            return tokenString;
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Portfolio.Backend.Csharp.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
+    [Authorize(Roles = "Admin, Owner")]
     public class UserController : Controller
     {
         private readonly IUserService _userService;
@@ -21,7 +21,6 @@ namespace Portfolio.Backend.Csharp.Controllers
 
         [HttpGet]
         [Route("/GetUsers")]
-        [AllowAnonymous]
         public async Task<IActionResult> GetAllUsers()
         {
             return Ok(await _userService.GetAllUsersResponse());
@@ -29,8 +28,6 @@ namespace Portfolio.Backend.Csharp.Controllers
 
         [HttpGet]
         [Route("/GetUser/{userId}")]
-        // TODO: Add Authorize attribute
-        // TODO: Change from HttpPost to HttpGet
         public async Task<IActionResult> GetUser([FromRoute] string userId)
         {
             return ResponseMapping(await _userService.GetUserResponse(userId));
@@ -46,7 +43,6 @@ namespace Portfolio.Backend.Csharp.Controllers
 
         [HttpPut]
         [Route("/UpdateUser")]
-        // TODO: Add Authorize attribute
         public async Task<IActionResult> UpdateUser([FromBody] UserRequest userRequest)
         {
             return ResponseMapping(await _userService.UpdateUser(userRequest, null));
@@ -54,7 +50,6 @@ namespace Portfolio.Backend.Csharp.Controllers
 
         [HttpDelete]
         [Route("/DeleteUser/{userId}")]
-        // TODO: Add Authorize attribute
         public async Task<IActionResult> DeleteUser([FromRoute] string userId)
         {
             return ResponseMapping(await _userService.DeleteUser(userId));
@@ -62,7 +57,6 @@ namespace Portfolio.Backend.Csharp.Controllers
 
         [HttpPost]
         [Route("/UpdateRole/{userId}/Role/{role}")]
-        // TODO: Add Authorize attribute
         public async Task<IActionResult> UpdateAccountType(string userId, string role)
         {
             return ResponseMapping(await _userService.UpdateUserRole(userId, role));
@@ -90,7 +84,6 @@ namespace Portfolio.Backend.Csharp.Controllers
                 case _userDeleted:
                     return Ok(new MessageResponse(_userDeleted));
                 default:
-                    // return internal server error
                     return StatusCode(500, new MessageResponse(_internalServerError));
             }
         }
